@@ -13,15 +13,15 @@ When I was a kid, probably somewhere around 7 or 8 years old, a friend of mine i
 
 > After starting to write this I discovered that Night Raid is a remake of a very popular 1982 game called Paratrooper. I hadn't heard of Paratrooper and I wasn't evn born when it came out. I think Night Raid improved on the classic and even added a few things. You can see a bit of Paratrooper [here](https://www.youtube.com/watch?v=SnPUsspS-LM).
 
-As I remember it, the friend who gave me the game also told me that there were 300 levels. I don't know why that statement stuck with me, but it may have been because I was only able to complete a handful of levels before losing. Even the thought of twenty levels seemed daunting.
+As I remember it, the friend who gave me the game also told me that there were 300 waves (called "waves in the game). I don't know why that statement stuck with me, but it may have been because I was only able to complete a handful of waves before losing. Even the thought of twenty waves seemed daunting.
 
-Years later, I would think about Night Raid and its three hundred levels from time to time. I couldn't imagine it had 300 levels, but maybe it just kept going and getting harder and harder until you eventually lost, similar to a Rogue Like.
+Years later, I would think about Night Raid and its three hundred waves from time to time. I couldn't imagine it had 300 waves, but maybe it just kept going and getting harder and harder until you eventually lost, similar to a Rogue Like.
 
-This theory of infinite levels didn't seem to make much sense, for one simple reason. Every so many levels in Night Raid you're treated to an intermission animation between waves or "levels" called "intermission". In one intermission, a helicopter brings an outhouse for your character to use. In another, your character has pizza delivered. How would they be able to do that infinitely? How many intermissions existed, and more importantly, what were they?
+This theory of infinite waves didn't seem to make much sense, for one simple reason. Every so many waves in Night Raid you're treated to an intermission animation between waves or called "intermission". In one intermission, a helicopter brings an outhouse for your character to use. In another, your character has pizza delivered. How would they be able to do that infinitely? How many intermissions existed, and more importantly, what were they?
 
 More time had gone by, and I was sitting around bored one day and decided to see what I could find about this old game that kept popping into my head. I quickly found it at My Abandonware. I fired up DOSBox, and started playing it. The soundtrack provided a wave of nostalgia I didn't expect, the title song still slaps.
 
-As a reverse engineer I immediately thought to myself: "You know, I could probably figure out how many levels there are pretty easily". 
+As a reverse engineer I immediately thought to myself: "You know, I could probably figure out how many waves there are pretty easily". 
 
 > **NOTE**: These are words I pretty much can't stop myself from saying. The phrase "Pretty easily" just really should be removed from my vocabulary.
 
@@ -77,11 +77,19 @@ But why weren't there any crossreferences?
 ## MS-DOS 16-bit Segmentation
 One of the biggest problems is the 16-bit memory segmentation model of MS-DOS real mode.
 
-> **NOTE**: There are two modes, real and protected. The following discussion only covers real mode memory segmentation.
+> **NOTE**: There are serveral modes, real and protected. The following discussion only covers real mode memory segmentation.
 
-If you're a modern-day programmer of low level languages such as C and (to a lesser extent modern C++), you've likely dealt with pointers, and by extension memory addresses. In modern 32-bit computers running modern operating systems, a pointer to a memory location is just the 4-byte address of the value in virtual memory. In a 64-bit machine these pointers are 8-bytes long. But the address space is linear, these addresses just work and fit into a single register.
+If you're a modern-day programmer of low wave languages such as C and (to a lesser extent modern C++), you've likely dealt with pointers, and by extension memory addresses. In modern 32-bit computers running modern operating systems, a pointer to a memory location is just the 4-byte address of the value in virtual memory. In a 64-bit machine these pointers are 8-bytes long. But the address space is linear, and these address sizes are great because the addresses fit perfectly into one register.
 
-However, it's more complicated on Intel systems running MS-DOS. I'll spare you the details, but the 8086 processor was able to address 20 address lines (or 1MB of space), but only had registers that were 16-bits in size (64KB of space). To allow the user to address all 20 bits of address space the process or would use one of a few *segment registers* (described below), shift its value left by 4 bits, and then add the register containing the bottom 16 bits of the address.
+However, it's more complicated on Intel systems running MS-DOS. The processor can be put into several modes and one of the most common modes for video games was "real mode". I'll spare you the details, but the 8086 processor was able to address 20 address lines (or 1MB of space), but only had registers that were 16-bits in size (64KB of space). 
+
+This is a problem whenever you have an instruction that dereferences a register for a memory read, for example:
+
+```asm
+	mov bx, [ax] ; Moves what AX points to into BX
+```
+
+This is a problem because AX can never be a value that reaches the majority of the available address space the processor is capable of handling. The solution to this is to have a set of special registers called *segement registers*. These registers would for the top portion of the addressing scheme, allowing the software to utilize all 20 address lines. This segment register would be the 16 most significant bits in the total 20 bit address.
 
 | Segment Register | Description   |
 | ---------------- | ------------- |
@@ -90,9 +98,21 @@ However, it's more complicated on Intel systems running MS-DOS. I'll spare you t
 | ES               | Extra Segment |
 | SS               | Stack Segment |
 
-As an example if `AX` had a value of `0x1234` and `DS` had a value of `0x0013` Then to the final address of `MOV BX, [AX]` would not be `0x1234` but instead `0x1364`. This means that memory is segmented into 64k chunks, and the processor combines two separate registers to address memory. 
+To calculate the full 20-bit address of the memory location you were trying to access, the segement register value was shifted left by 4 bits, and then the offset register was added. Example (from [Wikipedia](https://en.wikipedia.org/wiki/X86_memory_segmentation)).
 
-A natural questions to ask is: "what is the value of `DS` at any given point in the disassembly?" The answer is that it's what ever it was set to at any point during execution. It's up to the compiler to make sure that it gets set correctly before the memory access happens, but that can be set any time. This means Ghidra needs to track this value through the program flow, and across `CALL` instructions. 
+```
+DS = 0x06EF
+AX = 0x8124
+
+0000 0110 1110 1111 0000 = DS << 4
++    0001 0010 0011 0100 = AX
+---------------------------------------
+0000 1000 0001 0010 0100 = Final Address
+```
+
+You'd be correct if you noticed multiple segemented addresses can all resolve to the same linear address. In the above example the final address `0x08124` could be `06EF:1234`, `0812:0004`, or `0000:8124`.
+
+A natural questions to ask is: "How do I determine the value of `DS` at any given point in the disassembly?" The answer is that it's what ever it was set to at any point during execution. It's up to the compiler to make sure that it gets set correctly before the memory access happens, but that can be set any time. This means Ghidra needs to track this value through the program flow, and across `CALL` instructions. 
 
 Ghidra does a good job of tracking the segment registers. At almost any point you can check the value of DS or CS and it is able to tell you based on context the value of that register. However, in other cases, it's simply not able to figure it out. Here's an example:
 
@@ -210,7 +230,7 @@ In this image I have set the data viewer to the address of `DS:DX`. You can see 
 
 The same string in Ghidra has a segment register of `0x2730` and an offset of `0x0c7d`. In fact, if we look at all of the string data in Ghidra, we will see that they all fall into the same data segment. This means that we can ignore what the data segment is, and focus only on the offset, in order to find cross references for our strings.
 
-As our main goal is to find the number of levels in the game, let's look for a string that might reference the level we're currently on. 
+As our main goal is to find the number of waves in the game, let's look for a string that might reference the wave we're currently on. 
 
 There are two:
 ![Current Level string](/assets/img/Pasted image 20220601210219.png)
@@ -225,7 +245,7 @@ The screenshot gives it away, but we can see this value is being pushed as the 2
 
 The value pushed third onto the stack is the value that is replacing the `%d` in our format string. In this case it's likely the current wave that we are on. One is added to this value because the value stored starts at 0, and increments from there, but when the message is displayed to the user, saying `Assault Wave 0` doesn't make much sense. The player will probably want to see `Assault Wave 1`.
 
-So now we think we know the variable that deals with what wave, or level we're on. Let's test it out.
+So now we think we know the variable that deals with what wave, or wave we're on. Let's test it out.
 
 If we restart, Night Raid we can use the `IV` name to create a variable name that we can then monitor for changes. In our case the full command will be `IV 191D:205e currentWave`. This will place the value of `191d:205e` with a friendly name, into our variable overview, as seen below:
 
@@ -239,15 +259,19 @@ As you can see the wave has incremented, and is one less than the wave number dr
 So now we know the current wave number, lets go and check out its cross references. In Ghidra the offset to the currentWave in our code is `2730:205e`. Looking at the list of cross-references, there are quite a few, where one stands out: `16c8:4e52`. This function appears to check the current wave many times, for specific values. 
 
 ![Checking current wave listing](/assets/img/Pasted image 20220602212953.png)
-As mentioned above, every so many levels, a unique intermission animation plays. If we play through the game and watch the value of `currentWave` we'll see that those unique animations line up with the values being checked against. It also looks like the biggest, and last animation might be `0xd`. 
+As mentioned above, every so many waves, a unique intermission animation plays. If we play through the game and watch the value of `currentWave` we'll see that those unique animations line up with the values being checked against. It also looks like the biggest, and last animation might be `0xd`. 
 
 Another thing to notice is that the animation numbers listed here are  one more than when the animation actually plays. This means the first animation will play after wave 3, after wave 7 and finally after wave 13. 
 
-Now, back to Night Raid, lets test this. Load up the first level, then while it's playing set the current wave to `0xc` and play through the end of the current level. 
+Now, back to Night Raid, lets test this. Load up the first wave, then while it's playing set the current wave to `0xc` and play through the end of the current wave. 
 
 ![End State](/assets/img/Pasted image 20220602213921.png)
 
 Receive your "You Won" animation. 
+
+## Conclusion
+
+There are not 300 waves, and there are not infinate waves. There are just 13.
 
 ## FAQ
 Q: Why did you just look for "You Won". 
@@ -259,7 +283,7 @@ A: A ton of really interesting stuff, more related to the nuts and bolts of writ
 Q: What would you look at in the future?
 A: I didn't really get time to see if there were any unknown key commands or cheat codes beyond what are in the README.
 
-Q: Did you not know you can warp levels?
-A: Yes I did know I could warp levels. AFAIK you can't get to the last levels though.
+Q: Did you not know you can warp waves?
+A: Yes I did know I could warp waves. AFAIK you can't get to the last several waves.
 
 
