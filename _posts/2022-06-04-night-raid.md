@@ -5,10 +5,13 @@ title: "Reverse Engineering Night Raid"
 
 
 # Night Raid
+
+![Night Raid Title](/assets/img/night-raid-title.png)
+
 ## Introduction
 When I was a kid, probably somewhere around 7 or 8 years old, a friend of mine introduced me to a video game called [Night Raid](https://www.myabandonware.com/game/night-raid-1lf). Created in 1992 and developed by ARGO Games, published by Software Creations, it's not likely that you've ever heard of it. It was just some niche game written by Jason Blochowiak, with art from Don Glassford and music by Robert Prince, that very few people ever played, but had a big impact on me. 
 
-> After starting to write this I discovered that Night Raid is effectively a remake of a very popular 1982 game called Paratrooper. I hadn't heard of Paratrooper, as I wasn't born when it came out. I think Night Raid improved on the classic and even added a few things. You can see a bit of Paratrooper [here](https://www.youtube.com/watch?v=SnPUsspS-LM).
+> After starting to write this I discovered that Night Raid is a remake of a very popular 1982 game called Paratrooper. I hadn't heard of Paratrooper and I wasn't evn born when it came out. I think Night Raid improved on the classic and even added a few things. You can see a bit of Paratrooper [here](https://www.youtube.com/watch?v=SnPUsspS-LM).
 
 As I remember it, the friend who gave me the game also told me that there were 300 levels. I don't know why that statement stuck with me, but it may have been because I was only able to complete a handful of levels before losing. Even the thought of twenty levels seemed daunting.
 
