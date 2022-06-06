@@ -79,7 +79,7 @@ One of the biggest problems is the 16-bit memory segmentation model of MS-DOS re
 
 > **NOTE**: There are serveral modes, real and protected. The following discussion only covers real mode memory segmentation.
 
-If you're a modern-day programmer of low wave languages such as C and (to a lesser extent modern C++), you've likely dealt with pointers, and by extension memory addresses. In modern 32-bit computers running modern operating systems, a pointer to a memory location is just the 4-byte address of the value in virtual memory. In a 64-bit machine these pointers are 8-bytes long. But the address space is linear, and these address sizes are great because the addresses fit perfectly into one register.
+If you're a modern-day programmer of low level languages such as C and (to a lesser extent modern C++), you've likely dealt with pointers, and by extension memory addresses. In modern 32-bit computers running modern operating systems, a pointer to a memory location is just the 4-byte address of the value in virtual memory. In a 64-bit machine these pointers are 8-bytes long. But the address space is linear, and these address sizes are great because the addresses fit perfectly into one register.
 
 However, it's more complicated on Intel systems running MS-DOS. The processor can be put into several modes and one of the most common modes for video games was "real mode". I'll spare you the details, but the 8086 processor was able to address 20 address lines (or 1MB of space), but only had registers that were 16-bits in size (64KB of space). 
 
