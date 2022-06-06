@@ -8,7 +8,4 @@ comments: false
 
 Software developer and reverse engineer living in the greater Boston area.
 
-**Contact**
-
-- {{ site.author.email }}
 - github.com/{{ site.author.github }}
