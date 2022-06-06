@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Reverse Engineering Night Raid"
+image: /assets/img/night-raid-title.png
 ---
 
 
