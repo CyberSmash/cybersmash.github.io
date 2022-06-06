@@ -10,18 +10,18 @@ mode: dark # default theme "dark" | "light"
 
 # Profile settings
 author:
-  name: Jordan Sebastian # author name
+  name: CyberSmash # author name
   bio: >- # tell to the world
     A place to put my random projects. This site is very much under construction.
   #username: username # general username
-  #github: CyberSmash # github username
+  github: CyberSmash # github username
   #twitter: twitter_username # twitter username
   #facebook: facebook_username # facebook username
   email: jordan.d.sebastian@gmail.com # email adress
-  avatar: /assets/img/avatar.jpg # change with your own avatar
+  avatar: /assets/img/avatar.png # change with your own avatar
 
 # URL settings
-url: "https://klise.now.sh" #
+url: "https://cybersmash.github.io" #
 baseurl:
 permalink: /:title/
 google_analytics: # leave it blank if not wish
