@@ -25,9 +25,9 @@ As a reverse engineer, I immediately thought to myself: "You know, I could proba
 
 > **NOTE**: These are words I pretty much can't stop myself from saying. The phrase "Pretty easily" just really should be removed from my vocabulary.
 
-I threw the binary into IDA Pro and much to my dismay, I was met with the following: 
+I threw the binary into Ghidra and much to my dismay, I was met with the following: 
 
-**INSERT PICTURE OF PACKER**
+![Packed Binary Routine](/assets/img/night-raid-packer.png)
 
 ## PKLite Packer
 
@@ -259,6 +259,7 @@ As you can see the wave has incremented and is one less than the wave number dra
 So now we know the current wave number, let's go and check out its cross-references. In Ghidra the offset to the currentWave in our code is `2730:205e`. Looking at the list of cross-references, there are quite a few, where one stands out: `16c8:4e52`. This function appears to check the current wave many times, for specific values. 
 
 ![Checking current wave listing](/assets/img/Pasted image 20220602212953.png)
+
 As mentioned above, every so many waves, a unique intermission animation plays. If we play through the game and watch the value of `currentWave` we'll see that those unique animations line up with the values being checked against. It also looks like the biggest, and the last animation might be `0xd`. 
 
 Another thing to notice is that the animation numbers listed here are one more than when the animation actually plays. This means the first animation will play after wave 3, after wave 7, and finally after wave 13. 
@@ -285,4 +286,14 @@ A: I didn't really get time to see if there were any unknown key commands or che
 
 Q: Did you not know you can warp waves?
 A: Yes I did know I could warp waves. AFAIK you can't get to the last several waves.
+
+
+## Resources
+
+- Best interrupt reference in existence: [Ralf Brown Interrupt List](http://www.ctyme.com/rbrown.htm)
+- Keyboard input scancodes and values: [Scan Codes](https://sites.google.com/site/pcdosretro/scancodes)
+- Serial Ports: [Serial Port Reference](https://www.csee.umbc.edu/courses/undergraduate/211/Spring00/Burt/lectures/CntlHardware/serialPorts.html)
+- VGA/SVGA Memory Programming: [VGA/SVGA](https://web.stanford.edu/class/cs140/projects/pintos/specs/freevga/vga/vgamem.htm)
+- Dos programming Manual: [DOS Programming](https://archive.org/details/Advanced_MS-DOS_Programming_2nd_Edition_Ray_Duncan/page/21/mode/2up)
+- Mode 13H palette changing and reading: [Mode 13h](https://www.cprogramming.com/tutorial/tut2.html)
 
