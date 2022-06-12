@@ -24,7 +24,7 @@ author:
 url: "https://cybersmash.github.io" #
 baseurl:
 permalink: /:title/
-google_analytics: # leave it blank if not wish
+google_analytics: UA-77848939-1
 fb_appid:
 
 # Collection setting
